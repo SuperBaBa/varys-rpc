@@ -1,0 +1,4 @@
+org\jarvis\varys\server\VarysRpcServer$1.class
+org\jarvis\varys\server\VarysRpcServer.class
+org\jarvis\varys\handler\VarysServerHandler.class
+org\jarvis\varys\annotation\VarysService.class

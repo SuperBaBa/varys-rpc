@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="varys-common" />
+        <module name="demo-server" />
+        <module name="demo-client" />
+        <module name="varys-server" />
+        <module name="demo-api" />
+        <module name="varys-client" />
+        <module name="varys-registry" />
+      </profile>
+    </annotationProcessing>
+  </component>
+</project>

@@ -1,0 +1,7 @@
+org\jarvis\varys\dto\VarysRequest.class
+org\jarvis\varys\util\StringUtil.class
+org\jarvis\varys\codec\VarysMessageEncoder.class
+org\jarvis\varys\dto\VarysResponse.class
+org\jarvis\varys\codec\VarysMessageDecoder.class
+org\jarvis\varys\util\CollectionUtil.class
+org\jarvis\varys\util\SerializationUtil.class
