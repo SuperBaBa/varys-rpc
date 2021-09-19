@@ -4,6 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import org.jarvis.varys.dto.VarysRequest;
+import org.jarvis.varys.serialiaze.fastjson.FastjsonObjectInput;
+import org.jarvis.varys.serialiaze.fastjson.FastjsonSerialization;
 import org.jarvis.varys.util.SerializationUtil;
 
 import java.io.ByteArrayOutputStream;
@@ -21,7 +23,14 @@ public class VarysMessageEncoder extends MessageToByteEncoder {
     /**
      * 泛型类
      */
-    private final Class<?> genericClass;
+    private Class<?> genericClass;
+
+    public VarysMessageEncoder() {
+    }
+
+    public VarysMessageEncoder(Class<?> genericClass) {
+        this.genericClass = genericClass;
+    }
 
     /**
      * 不同消息编码器
@@ -30,10 +39,6 @@ public class VarysMessageEncoder extends MessageToByteEncoder {
      */
     public VarysMessageEncoder(Class<?> genericClass, boolean preferDirect) {
         super(preferDirect);
-        this.genericClass = genericClass;
-    }
-
-    public VarysMessageEncoder(Class<?> genericClass) {
         this.genericClass = genericClass;
     }
 
@@ -46,14 +51,16 @@ public class VarysMessageEncoder extends MessageToByteEncoder {
      * @throws Exception 异常
      */
     @Override
-    public void encode(ChannelHandlerContext ctx, Object in, ByteBuf out) {
-        if (genericClass.isInstance(in)) {
+    public void encode(ChannelHandlerContext ctx, Object in, ByteBuf out) throws IOException {
+        FastjsonSerialization serialization = new FastjsonSerialization();
+        serialization.serialize(out).writeObjectByByteBuf(in);
+        /*if (genericClass.isInstance(in)) {
             // 将对象序列化为字节数组
             //byte[] bytes = SerializationUtil.serialize(in);
             byte[] bytes = serializeByJDK(in);
             out.writeInt(bytes.length);
             out.writeBytes(bytes);
-        }
+        }*/
     }
 
     public byte[] serializeByJDK(Object obj) {

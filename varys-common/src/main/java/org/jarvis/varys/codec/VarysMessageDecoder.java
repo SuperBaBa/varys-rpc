@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import org.jarvis.varys.dto.VarysResponse;
+import org.jarvis.varys.serialiaze.fastjson.FastjsonSerialization;
 import org.jarvis.varys.util.SerializationUtil;
 
 import java.io.ByteArrayInputStream;
@@ -21,7 +22,7 @@ public class VarysMessageDecoder extends ByteToMessageDecoder {
     /**
      * 泛型类
      */
-    private final Class<?> genericClass;
+    private  Class<?> genericClass;
 
     /**
      * 不同信息译码器
@@ -30,6 +31,8 @@ public class VarysMessageDecoder extends ByteToMessageDecoder {
      */
     public VarysMessageDecoder(Class<?> genericClass) {
         this.genericClass = genericClass;
+    }
+    public VarysMessageDecoder() {
     }
 
     /**
@@ -41,8 +44,11 @@ public class VarysMessageDecoder extends ByteToMessageDecoder {
      * @throws Exception 异常
      */
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
-        if (in.readableBytes() < 4) {
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws IOException {
+        FastjsonSerialization fastjsonSerialization=new FastjsonSerialization();
+        Object obj=fastjsonSerialization.deserialize(in).readObjectByByteBuf();
+        out.add(obj);
+       /* if (in.readableBytes() < 4) {
             return;
         }
         // 标记字节流开始位置，读取指针在索引的位置
@@ -57,7 +63,7 @@ public class VarysMessageDecoder extends ByteToMessageDecoder {
         byte[] data = new byte[dataLength];
         in.readBytes(data);
         //out.add(SerializationUtil.deserialize(data, genericClass));
-        out.add(deSerializeByJDK(data));
+        out.add(deSerializeByJDK(data));*/
     }
 
     public Object deSerializeByJDK(byte[] data) {

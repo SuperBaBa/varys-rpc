@@ -27,6 +27,10 @@ public class VarysRpcClient extends ChannelInboundHandlerAdapter {
 
     private VarysResponse response;
 
+    public VarysResponse getResponse() {
+        return response;
+    }
+
     public VarysRpcClient(String host, int port) {
         this.host = host;
         this.port = port;
@@ -92,7 +96,7 @@ public class VarysRpcClient extends ChannelInboundHandlerAdapter {
             channel.writeAndFlush(request).sync();
             channel.closeFuture().sync();
             // 返回 RPC 响应对象
-            return varysClientHandler.getVarysResponse();
+            return response;
         } finally {
             group.shutdownGracefully();
         }

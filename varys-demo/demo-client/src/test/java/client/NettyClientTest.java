@@ -8,12 +8,13 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.ReferenceCountUtil;
+import org.jarvis.varys.client.netty4.NettyClient;
 
 import java.nio.charset.StandardCharsets;
 
 public class NettyClientTest extends SimpleChannelInboundHandler<String> {
     public static void main(String[] args) throws Exception {
-        String host = "127.0.0.1";
+       /* String host = "127.0.0.1";
         int port = Integer.parseInt("8099");
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
@@ -40,7 +41,8 @@ public class NettyClientTest extends SimpleChannelInboundHandler<String> {
             channel.closeFuture().sync();
         } finally {
             workerGroup.shutdownGracefully();
-        }
+        }*/
+        new NettyClient();
     }
 
     @Override
