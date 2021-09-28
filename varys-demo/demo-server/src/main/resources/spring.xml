@@ -8,13 +8,15 @@
        http://www.springframework.org/schema/context/spring-context.xsd">
 
     <context:component-scan base-package="org.jarvis.varys"/>
-
+    <!--获取根路径下的rpc配置文件-->
     <context:property-placeholder location="classpath:rpc.properties"/>
 
+    <!--初始化zk注册中心-->
     <bean id="serviceRegistry" class="org.jarvis.varys.registry.ZooKeeperServiceRegistry">
         <constructor-arg name="zkAddress" value="${rpc.registry_address}"/>
     </bean>
 
+    <!--初始化服务端-->
     <bean id="rpcServer" class="org.jarvis.varys.server.VarysRpcServer">
         <constructor-arg name="serviceAddress" value="${rpc.service_address}"/>
         <constructor-arg name="serviceRegistry" ref="serviceRegistry"/>

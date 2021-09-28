@@ -8,6 +8,8 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 import org.jarvis.varys.annotation.VarysService;
 import org.jarvis.varys.codec.VarysMessageDecoder;
 import org.jarvis.varys.codec.VarysMessageEncoder;
@@ -160,10 +162,18 @@ public class VarysRpcServer implements ApplicationContextAware, InitializingBean
             }
             log.debug("org.jarvis.server started on port {}", port);
             // 关闭 RPC 服务器
-            future.channel().closeFuture().sync();
+            ChannelFuture closeFuture = future.channel().closeFuture();
+            closeFuture.addListeners(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    serviceRegistry.removeAllService();
+                }
+            });
+            closeFuture.sync();
         } finally {
-            workerGroup.shutdownGracefully();
+            // 关闭接收的event loop后再关闭所有线程
             bossGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
         }
 
     }

@@ -1,7 +1,6 @@
 package org.jarvis.varys.serialiaze.fastjson;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -40,6 +39,7 @@ public class FastjsonObjectOutput implements ObjectOutput {
         writer.flush();
     }
 
+    @Override
     public void writeObjectByByteBuf(Object obj) throws IOException {
         byte[] jsonBytes = JSON.toJSONBytes(obj, SerializerFeature.NotWriteDefaultValue);
         byteBuf.writeBytes(jsonBytes);

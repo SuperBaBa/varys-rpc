@@ -20,8 +20,8 @@ public class HelloServiceImpl implements HelloService {
     }
 
     @Override
-    public void sayHi() {
-
+    public String sayHi() {
+        return "";
     }
 
     @Override

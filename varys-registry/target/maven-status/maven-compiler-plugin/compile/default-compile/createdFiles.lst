@@ -1,5 +1,0 @@
-org\jarvis\varys\Constant.class
-org\jarvis\varys\discovery\ZooKeeperServiceDiscovery.class
-org\jarvis\varys\registry\VarysRegistrar.class
-org\jarvis\varys\registry\ZooKeeperServiceRegistry.class
-org\jarvis\varys\discovery\VarysServiceDiscovery.class

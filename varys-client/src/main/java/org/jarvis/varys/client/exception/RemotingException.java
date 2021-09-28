@@ -1,6 +1,6 @@
 package org.jarvis.varys.client.exception;
 
-import org.jarvis.varys.channel.VarysChannel;
+import org.jarvis.varys.core.VarysChannel;
 
 import java.net.InetSocketAddress;
 

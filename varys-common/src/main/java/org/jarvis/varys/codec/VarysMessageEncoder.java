@@ -6,6 +6,7 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import org.jarvis.varys.dto.VarysRequest;
 import org.jarvis.varys.serialiaze.fastjson.FastjsonObjectInput;
 import org.jarvis.varys.serialiaze.fastjson.FastjsonSerialization;
+import org.jarvis.varys.serialiaze.jdk.JdkSerialization;
 import org.jarvis.varys.util.SerializationUtil;
 
 import java.io.ByteArrayOutputStream;
@@ -52,30 +53,9 @@ public class VarysMessageEncoder extends MessageToByteEncoder {
      */
     @Override
     public void encode(ChannelHandlerContext ctx, Object in, ByteBuf out) throws IOException {
-        FastjsonSerialization serialization = new FastjsonSerialization();
-        serialization.serialize(out).writeObjectByByteBuf(in);
-        /*if (genericClass.isInstance(in)) {
-            // 将对象序列化为字节数组
-            //byte[] bytes = SerializationUtil.serialize(in);
-            byte[] bytes = serializeByJDK(in);
-            out.writeInt(bytes.length);
-            out.writeBytes(bytes);
-        }*/
-    }
-
-    public byte[] serializeByJDK(Object obj) {
-        ByteArrayOutputStream baos = null;
-        try {
-            baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(obj);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return baos.toByteArray();
-    }
-
-    public byte[] serializeByProtobuf(Object obj) {
-        return SerializationUtil.serialize(obj);
+        //FastjsonSerialization fastjsonSerialization = new FastjsonSerialization();
+        //fastjsonSerialization.serialize(out).writeObjectByByteBuf(in);
+        JdkSerialization jdkSerialization = new JdkSerialization();
+        jdkSerialization.serialize(out).writeObjectByByteBuf(in);
     }
 }

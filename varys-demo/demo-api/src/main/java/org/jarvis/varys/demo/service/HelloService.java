@@ -4,7 +4,7 @@ public interface HelloService {
 
     void sayHelloWorld();
 
-    void sayHi();
+    String sayHi();
 
     String sayHello();
 }

@@ -1,40 +1,51 @@
 package org.jarvis.varys.client.handler;
 
 import io.netty.channel.*;
-import io.netty.handler.timeout.IdleStateEvent;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.zookeeper.server.Request;
+import org.jarvis.varys.client.VarysRpcClient;
+import org.jarvis.varys.core.VarysHolder;
 import org.jarvis.varys.dto.VarysRequest;
 import org.jarvis.varys.dto.VarysResponse;
+import org.jarvis.varys.dto.VarysRpcFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 public class VarysClientHandler extends ChannelDuplexHandler {
-    private static final Logger logger = LoggerFactory.getLogger(VarysClientHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(VarysClientHandler.class);
+
+    private VarysRpcClient varysRpcClient;
+
+    public VarysClientHandler(VarysRpcClient varysRpcClient) {
+        this.varysRpcClient = varysRpcClient;
+    }
+
+    public VarysClientHandler() {
+    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         Channel channel = ctx.channel();
-        logger.info("The connection of " + channel.localAddress().toString() + " -> " + channel.remoteAddress().toString() + " is established.");
+        log.info("The connection of " + channel.localAddress().toString() + " -> " + channel.remoteAddress().toString() + " is established.");
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Channel channel = ctx.channel();
         ChannelFuture future = channel.disconnect();
-        future.removeListeners(new ChannelFutureListener() {
+        future.addListeners(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
-                logger.info("The connection of " + channel.localAddress().toString() + " -> " + channel.remoteAddress().toString() + " is disconnected.");
+                log.info("The connection of " + channel.localAddress().toString() + " -> " + channel.remoteAddress().toString() + " is disconnected.");
             }
         });
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        Channel channel = ctx.channel();
-        //handler.received(channel, msg);
+        VarysResponse varysResponse = (VarysResponse) msg;
+        varysRpcClient.receiver(ctx.channel(),varysResponse);
+        VarysRpcFuture<VarysResponse> future = VarysHolder.REQUEST_MAP.get(1L);
+        future.getPromise().setSuccess(varysResponse);
     }
 
     /*@Override
@@ -68,8 +79,8 @@ public class VarysClientHandler extends ChannelDuplexHandler {
         if (evt instanceof IdleStateEvent) {
             try {
                 NettyChannel channel = NettyChannel.getOrAddChannel(ctx.channel(), url, handler);
-                if (logger.isDebugEnabled()) {
-                    logger.debug("IdleStateEvent triggered, send heartbeat to channel " + channel);
+                if (log.isDebugEnabled()) {
+                    log.debug("IdleStateEvent triggered, send heartbeat to channel " + channel);
                 }
                 Request req = new Request();
                 req.setVersion(Version.getProtocolVersion());
@@ -85,8 +96,15 @@ public class VarysClientHandler extends ChannelDuplexHandler {
     }*/
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
-            throws Exception {
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        ctx.flush();
+        ctx.close();
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("org.jarvis.server caught exception", cause);
+        ctx.close();
     }
 
     /**
@@ -102,5 +120,6 @@ public class VarysClientHandler extends ChannelDuplexHandler {
         //response.setErrorMessage(StringUtils.toString(t));
         return response;
     }
+
 
 }

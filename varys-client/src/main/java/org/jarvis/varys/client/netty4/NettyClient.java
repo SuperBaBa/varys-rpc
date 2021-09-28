@@ -5,13 +5,10 @@ import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import org.apache.zookeeper.Version;
-import org.jarvis.varys.channel.VarysChannel;
+import org.jarvis.varys.core.VarysChannel;
 import org.jarvis.varys.client.AbstractClient;
 import org.jarvis.varys.client.exception.RemotingException;
-import org.jarvis.varys.client.handler.VarysClientHandler;
 import org.jarvis.varys.codec.VarysMessageDecoder;
 import org.jarvis.varys.codec.VarysMessageEncoder;
 import org.slf4j.Logger;
@@ -65,8 +62,8 @@ public class NettyClient extends AbstractClient {
             protected void initChannel(SocketChannel ch) throws Exception {
                 ch.pipeline()//.addLast("logging",new LoggingHandler(LogLevel.INFO))//for debug
                         .addLast("decoder", new VarysMessageDecoder())
-                        .addLast("encoder", new VarysMessageEncoder())
-                        .addLast("handler", new VarysClientHandler());
+                        .addLast("encoder", new VarysMessageEncoder());
+                        //.addLast("handler", new VarysClientHandler(this));
             }
         });
 

@@ -1,8 +1,7 @@
 package org.jarvis.varys.client;
 
-import io.netty.channel.Channel;
 import org.apache.zookeeper.Version;
-import org.jarvis.varys.channel.VarysChannel;
+import org.jarvis.varys.core.VarysChannel;
 import org.jarvis.varys.client.exception.RemotingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

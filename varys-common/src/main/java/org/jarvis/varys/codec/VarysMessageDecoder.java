@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import org.jarvis.varys.dto.VarysResponse;
 import org.jarvis.varys.serialiaze.fastjson.FastjsonSerialization;
+import org.jarvis.varys.serialiaze.jdk.JdkSerialization;
 import org.jarvis.varys.util.SerializationUtil;
 
 import java.io.ByteArrayInputStream;
@@ -22,7 +23,7 @@ public class VarysMessageDecoder extends ByteToMessageDecoder {
     /**
      * 泛型类
      */
-    private  Class<?> genericClass;
+    private Class<?> genericClass;
 
     /**
      * 不同信息译码器
@@ -32,6 +33,7 @@ public class VarysMessageDecoder extends ByteToMessageDecoder {
     public VarysMessageDecoder(Class<?> genericClass) {
         this.genericClass = genericClass;
     }
+
     public VarysMessageDecoder() {
     }
 
@@ -45,41 +47,11 @@ public class VarysMessageDecoder extends ByteToMessageDecoder {
      */
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws IOException {
-        FastjsonSerialization fastjsonSerialization=new FastjsonSerialization();
-        Object obj=fastjsonSerialization.deserialize(in).readObjectByByteBuf();
+        //FastjsonSerialization fastjsonSerialization = new FastjsonSerialization();
+        //Object obj = fastjsonSerialization.deserialize(in).readObjectByByteBuf();
+        JdkSerialization jdkSerialization=new JdkSerialization();
+        Object obj = jdkSerialization.deserialize(in).readObjectByByteBuf();
         out.add(obj);
-       /* if (in.readableBytes() < 4) {
-            return;
-        }
-        // 标记字节流开始位置，读取指针在索引的位置
-        in.markReaderIndex();
-        // 获取data的字节流长度
-        int dataLength = in.readInt();
-        if (in.readableBytes() < dataLength) {
-            // 重新回到读取指针标记的位置
-            in.resetReaderIndex();
-            return;
-        }
-        byte[] data = new byte[dataLength];
-        in.readBytes(data);
-        //out.add(SerializationUtil.deserialize(data, genericClass));
-        out.add(deSerializeByJDK(data));*/
-    }
-
-    public Object deSerializeByJDK(byte[] data) {
-        // 使用JDK反序列化
-        try {
-            ByteArrayInputStream bais = new ByteArrayInputStream(data);
-            ObjectInputStream ois = new ObjectInputStream(bais);
-            return ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public <T> T deSerializeByProtobuf(byte[] data, Class<T> genericClass) {
-        return SerializationUtil.deserialize(data, genericClass);
     }
 
 }

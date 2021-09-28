@@ -14,4 +14,6 @@ public interface VarysRegistrar {
      * @param serviceAddress 服务地址
      */
     void registry(String interfaceName, String serviceAddress);
+
+    void removeAllService();
 }

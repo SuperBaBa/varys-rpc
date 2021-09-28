@@ -1,6 +1,8 @@
 package org.jarvis.varys.codec;
 
 import org.jarvis.varys.dto.VarysRequest;
+import org.jarvis.varys.serialiaze.jdk.JdkSerialization;
+import org.jarvis.varys.util.SerializationUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,10 +19,7 @@ import static org.junit.Assert.*;
  * @date 2021/09/06
  */
 public class VarysMessageDecoderTest {
-    /**
-     * 不同信息译码器
-     */
-    VarysMessageDecoder varysMessageDecoder;
+    JdkSerialization jdkSerialization;
     /**
      * 不同消息编码器
      */
@@ -37,7 +36,7 @@ public class VarysMessageDecoderTest {
      */
     @Before
     public void setUp() throws Exception {
-        varysMessageDecoder = new VarysMessageDecoder(VarysRequest.class);
+        jdkSerialization = new JdkSerialization();
         varysRequest = new VarysRequest();
         varysRequest.setRequestId(UUID.randomUUID().toString());
         varysMessageEncoder = new VarysMessageEncoder(VarysRequest.class);
@@ -55,8 +54,8 @@ public class VarysMessageDecoderTest {
      */
     @Test
     public void testDeserializeByJDK() {
-        byte[] bytes = varysMessageEncoder.serializeByJDK(varysRequest);
-        Object obj = varysMessageDecoder.deSerializeByJDK(bytes);
+        byte[] bytes = jdkSerialization.serializeByJDK(varysRequest);
+        Object obj = jdkSerialization.deSerializeByJDK(bytes);
         System.out.println(obj.toString());
     }
 
@@ -66,7 +65,7 @@ public class VarysMessageDecoderTest {
      */
     @Test
     public void testSerializeByJDK() {
-        byte[] bytes = varysMessageEncoder.serializeByJDK(varysRequest);
+        byte[] bytes = jdkSerialization.serializeByJDK(varysRequest);
         System.out.println(Arrays.toString(bytes));
     }
 
@@ -75,8 +74,8 @@ public class VarysMessageDecoderTest {
      */
     @Test
     public void testDeserializeByProtobuf() {
-        byte[] bytes = varysMessageEncoder.serializeByProtobuf(varysRequest);
-        Object obj = varysMessageDecoder.deSerializeByProtobuf(bytes, VarysRequest.class);
+        byte[] bytes = SerializationUtil.serialize(varysRequest);
+        Object obj = SerializationUtil.deserialize(bytes, VarysRequest.class);
         System.out.println(obj.toString());
     }
 
@@ -86,7 +85,7 @@ public class VarysMessageDecoderTest {
      */
     @Test
     public void testSerializeByProtobuf() {
-        byte[] bytes = varysMessageEncoder.serializeByProtobuf(varysRequest);
+        byte[] bytes = SerializationUtil.serialize(varysRequest);
         System.out.println(Arrays.toString(bytes));
     }
 }

@@ -1,15 +1,21 @@
 package org.jarvis.varys.serialiaze.jdk;
 
+import io.netty.buffer.ByteBuf;
 import org.jarvis.varys.serialiaze.ObjectOutput;
 
 import java.io.*;
 
 public class JdkObjectOutput implements ObjectOutput {
 
-    private final ObjectOutputStream outputStream;
+    private ObjectOutputStream outputStream;
+    private ByteBuf byteBufOutput;
 
     public JdkObjectOutput(OutputStream outputStream) throws IOException {
         this.outputStream = new ObjectOutputStream(outputStream);
+    }
+
+    public JdkObjectOutput(ByteBuf byteBufOutput) throws IOException {
+        this.byteBufOutput = byteBufOutput;
     }
 
     @Override
@@ -24,7 +30,16 @@ public class JdkObjectOutput implements ObjectOutput {
 
     @Override
     public void writeObjectByByteBuf(Object v) throws IOException {
-
+        ByteArrayOutputStream baos = null;
+        try {
+            baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(v);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        byte[] bytes = baos.toByteArray();
+        byteBufOutput.writeBytes(bytes);
     }
 
     @Override

@@ -13,6 +13,7 @@ import org.jarvis.varys.dto.VarysResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * RPC 客户端（用于发送 RPC 请求）
  *
@@ -69,9 +70,9 @@ public class VarysRpcClient extends ChannelInboundHandlerAdapter {
         ctx.close();
     }
 
-    public VarysResponse sendCommand(VarysRequest request) throws Exception {
+    public void sendCommand(VarysRequest request) throws Exception {
         EventLoopGroup group = new NioEventLoopGroup();
-        VarysClientHandler varysClientHandler = new VarysClientHandler();
+        VarysClientHandler varysClientHandler = new VarysClientHandler(this);
         try {
             // 创建并初始化 Netty 客户端 Bootstrap 对象
             Bootstrap bootstrap = new Bootstrap();
@@ -93,12 +94,22 @@ public class VarysRpcClient extends ChannelInboundHandlerAdapter {
             ChannelFuture future = bootstrap.connect(host, port).sync();
             // 写入 RPC 请求数据并关闭连接
             Channel channel = future.channel();
-            channel.writeAndFlush(request).sync();
+            ChannelFuture channelFuture = channel.writeAndFlush(request);
+            channelFuture.addListeners(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                }
+            });
+            channelFuture.sync();
             channel.closeFuture().sync();
             // 返回 RPC 响应对象
-            return response;
         } finally {
             group.shutdownGracefully();
         }
     }
+
+    public void receiver(Channel channel, VarysResponse varysResponse) {
+        this.response = varysResponse;
+    }
+
 }

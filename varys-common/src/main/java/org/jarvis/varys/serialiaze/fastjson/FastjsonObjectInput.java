@@ -47,6 +47,7 @@ public class FastjsonObjectInput implements ObjectInput {
         this.byteBuf = byteBuf;
     }
 
+    @Override
     public Object readObjectByByteBuf() throws IOException {
         String json = readLineByByteBuf();
         if (StringUtil.isEmpty(json)) {
@@ -82,6 +83,7 @@ public class FastjsonObjectInput implements ObjectInput {
         return JSON.parseObject(json, type);
     }
 
+    @Override
     public <T> T readObjectByByteBuf(Class<T> cls, Type type) throws IOException {
         String json = readLineByByteBuf();
         if (StringUtil.isEmpty(json)) {
@@ -223,13 +225,13 @@ public class FastjsonObjectInput implements ObjectInput {
         // 标记字节流开始位置，读取指针在索引的位置
         byteBuf.markReaderIndex();
         // 获取data的字节流长度
-        int dataLength = byteBuf.readInt();
+        /*int dataLength = byteBuf.readInt();
         if (byteBuf.readableBytes() < dataLength) {
             // 重新回到读取指针标记的位置
             byteBuf.resetReaderIndex();
             return "";
-        }
-        byte[] data = new byte[dataLength];
+        }*/
+        byte[] data = new byte[byteBuf.readableBytes()];
         byteBuf.readBytes(data);
         return new String(data, StandardCharsets.UTF_8);
     }

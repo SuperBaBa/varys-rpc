@@ -1,15 +1,21 @@
 package org.jarvis.varys.client;
 
+import io.netty.channel.DefaultChannelPromise;
+import io.netty.channel.DefaultEventLoop;
+import io.netty.util.concurrent.DefaultPromise;
 import org.apache.commons.lang3.StringUtils;
+import org.jarvis.varys.core.VarysHolder;
 import org.jarvis.varys.discovery.VarysServiceDiscovery;
 import org.jarvis.varys.dto.VarysRequest;
 import org.jarvis.varys.dto.VarysResponse;
+import org.jarvis.varys.dto.VarysRpcFuture;
 import org.jarvis.varys.registry.VarysRegistrar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Proxy;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * varys 客户端发送远程调用代理
@@ -32,13 +38,16 @@ public class VarysRpcProxy {
      */
     private String serviceAddress;
 
+    private final long timeout;
+
     /**
      * 不同的rpc代理
      *
      * @param serviceDiscovery 服务发现
      */
-    public VarysRpcProxy(VarysServiceDiscovery serviceDiscovery) {
+    public VarysRpcProxy(VarysServiceDiscovery serviceDiscovery, long timeout) {
         this.serviceDiscovery = serviceDiscovery;
+        this.timeout = timeout;
     }
 
     /**
@@ -47,8 +56,8 @@ public class VarysRpcProxy {
      * @param interfaceClass 接口类
      * @return {@link T}
      */
-    public <T> T createProxy(final Class<?> interfaceClass){
-        return  (T) createProxy(interfaceClass,"SNAPSHOT");
+    public <T> T createProxy(final Class<T> interfaceClass) {
+        return createProxy(interfaceClass, "SNAPSHOT");
     }
 
     /**
@@ -91,8 +100,12 @@ public class VarysRpcProxy {
                     // 创建 RPC 客户端对象并发送 RPC 请求
                     VarysRpcClient client = new VarysRpcClient(host, port);
                     long time = System.currentTimeMillis();
-                    VarysResponse response = client.sendCommand(request);
-                    log.debug("time: {}ms", System.currentTimeMillis() - time);
+                    VarysRpcFuture<VarysResponse> future = new VarysRpcFuture<>(new DefaultPromise<>(new DefaultEventLoop()), timeout);
+                    VarysHolder.REQUEST_MAP.put(1L, future);
+                    client.sendCommand(request);
+                    //VarysResponse response = future.getPromise().get(future.getTimeout(), TimeUnit.MILLISECONDS);
+                    VarysResponse response = client.getResponse();
+                    log.debug("cost time: {} ms", System.currentTimeMillis() - time);
                     if (response == null) {
                         throw new RuntimeException("response is null");
                     }

@@ -27,6 +27,7 @@ public class FastjsonSerialization implements Serialization {
         return new FastjsonObjectOutput(output);
     }
 
+    @Override
     public ObjectOutput serialize(ByteBuf byteBuf) throws IOException {
         return new FastjsonObjectOutput(byteBuf);
     }
@@ -43,6 +44,7 @@ public class FastjsonSerialization implements Serialization {
         return new FastjsonObjectInput(input);
     }
 
+    @Override
     public ObjectInput deserialize(ByteBuf byteBuf) throws IOException {
         return new FastjsonObjectInput(byteBuf);
     }

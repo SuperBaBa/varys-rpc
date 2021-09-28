@@ -18,6 +18,8 @@
     <!-- RPC Proxy -->
     <bean id="rpcProxy" class="org.jarvis.varys.client.VarysRpcProxy">
         <constructor-arg name="serviceDiscovery" ref="serviceDiscovery"/>
+        <constructor-arg name="timeout" value="5000"/>
+
     </bean>
 
 </beans>

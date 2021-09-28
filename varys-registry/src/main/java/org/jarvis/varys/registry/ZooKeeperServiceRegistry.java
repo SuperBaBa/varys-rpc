@@ -51,7 +51,7 @@ public class ZooKeeperServiceRegistry implements VarysRegistrar {
         String registryPath = Constant.ZK_REGISTRY_PATH;
         // 创建 registry 节点（持久）
         if (!zkClient.exists(registryPath)) {
-            zkClient.createPersistent(registryPath,true);
+            zkClient.createPersistent(registryPath, true);
             log.debug("create registry node: {}", registryPath);
         }
         // 创建 service 节点（持久）
@@ -62,7 +62,14 @@ public class ZooKeeperServiceRegistry implements VarysRegistrar {
         }
         // 创建 address 节点（临时）
         String addressPath = servicePath + "/address-";
-        String addressNode = zkClient.createEphemeralSequential(addressPath, serviceAddress);
+        // 创建 address 节点（持久）
+        String addressNode = zkClient.createPersistentSequential(addressPath, serviceAddress);
+        //String addressNode = zkClient.createEphemeralSequential(addressPath, serviceAddress);
         log.debug("create address node: {}", addressNode);
+    }
+
+    @Override
+    public void removeAllService() {
+        zkClient.delete(Constant.ZK_REGISTRY_PATH);
     }
 }
