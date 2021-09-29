@@ -15,5 +15,8 @@ public interface VarysRegistrar {
      */
     void registry(String interfaceName, String serviceAddress);
 
+    /**
+     * 删除所有服务
+     */
     void removeAllService();
 }
