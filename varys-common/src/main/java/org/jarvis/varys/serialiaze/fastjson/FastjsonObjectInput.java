@@ -56,6 +56,24 @@ public class FastjsonObjectInput implements ObjectInput {
         return JSON.parse(json);
     }
 
+    @Override
+    public <T> T readObjectByByteBuf(Class<T> cls) throws IOException {
+        String json = readLineByByteBuf();
+        if (StringUtil.isEmpty(json)) {
+            throw new IOException("Not found data");
+        }
+        return JSON.parseObject(json, cls);
+    }
+
+    @Override
+    public <T> T readObjectByByteBuf(Class<T> cls, Type type) throws IOException {
+        String json = readLineByByteBuf();
+        if (StringUtil.isEmpty(json)) {
+            throw new IOException("Not found data");
+        }
+        return JSON.parseObject(json, type);
+    }
+
     /**
      * 阅读对象
      *
@@ -80,15 +98,6 @@ public class FastjsonObjectInput implements ObjectInput {
     @Override
     public <T> T readObject(Class<T> cls, Type type) throws IOException {
         String json = readLine();
-        return JSON.parseObject(json, type);
-    }
-
-    @Override
-    public <T> T readObjectByByteBuf(Class<T> cls, Type type) throws IOException {
-        String json = readLineByByteBuf();
-        if (StringUtil.isEmpty(json)) {
-            throw new IOException("Not found data");
-        }
         return JSON.parseObject(json, type);
     }
 

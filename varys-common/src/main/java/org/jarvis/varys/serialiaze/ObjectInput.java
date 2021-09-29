@@ -11,7 +11,32 @@ import java.lang.reflect.Type;
  */
 public interface ObjectInput {
 
+    /**
+     * 阅读对象的字节缓冲区
+     *
+     * @return {@link Object}
+     * @throws IOException ioexception
+     */
     Object readObjectByByteBuf() throws IOException;
+
+    /**
+     * 阅读对象的字节缓冲区
+     *
+     * @param cls cls
+     * @return {@link T}
+     * @throws IOException ioexception
+     */
+    <T> T readObjectByByteBuf(Class<T> cls) throws IOException;
+
+    /**
+     * 阅读对象的字节缓冲区
+     *
+     * @param cls  cls
+     * @param type 类型
+     * @return {@link T}
+     * @throws IOException ioexception
+     */
+    <T> T readObjectByByteBuf(Class<T> cls, Type type) throws IOException;
 
     /**
      * 阅读对象
@@ -32,15 +57,6 @@ public interface ObjectInput {
      */
     <T> T readObject(Class<T> cls, Type type) throws IOException;
 
-    /**
-     * 阅读对象的字节缓冲区
-     *
-     * @param cls  cls
-     * @param type 类型
-     * @return {@link T}
-     * @throws IOException ioexception
-     */
-    <T> T readObjectByByteBuf(Class<T> cls, Type type) throws IOException;
 
     /**
      * 读bool

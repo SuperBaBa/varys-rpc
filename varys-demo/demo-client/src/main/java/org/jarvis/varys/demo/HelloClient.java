@@ -14,6 +14,6 @@ public class HelloClient {
         VarysRpcProxy proxy = context.getBean(VarysRpcProxy.class);
         HelloService helloService = proxy.createProxy(HelloService.class);
         String helloStr = helloService.sayHello();
-        System.out.print(helloStr);
+        System.out.println(helloStr);
     }
 }

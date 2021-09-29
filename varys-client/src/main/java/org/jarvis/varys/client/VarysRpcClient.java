@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author marcus
  */
-public class VarysRpcClient extends ChannelInboundHandlerAdapter {
+public class VarysRpcClient {
 
     private static final Logger log = LoggerFactory.getLogger(VarysRpcClient.class);
 
@@ -37,39 +37,6 @@ public class VarysRpcClient extends ChannelInboundHandlerAdapter {
         this.port = port;
     }
 
-
-    @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-        super.handlerAdded(ctx);
-    }
-
-    @Override
-    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-        super.handlerRemoved(ctx);
-    }
-
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("channel read complete...");
-    }
-
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("channel active...");
-    }
-
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        // 由 VarysMessageDecoder 解码后可进行使用
-        this.response = (VarysResponse) msg;
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("api caught exception", cause);
-        ctx.close();
-    }
-
     public void sendCommand(VarysRequest request) throws Exception {
         EventLoopGroup group = new NioEventLoopGroup();
         VarysClientHandler varysClientHandler = new VarysClientHandler(this);
@@ -84,8 +51,8 @@ public class VarysRpcClient extends ChannelInboundHandlerAdapter {
                         public void initChannel(SocketChannel channel) throws Exception {
                             ChannelPipeline pipeline = channel.pipeline();
                             // 向管道中添加 ChannelInbound 和 ChannelOutbound 处理器
-                            pipeline.addLast(new VarysMessageDecoder(VarysResponse.class)) // 解码 RPC 响应
-                                    .addLast(new VarysMessageEncoder(VarysRequest.class, true)) // 编码 RPC 请求
+                            pipeline.addLast(new VarysMessageDecoder(VarysResponse.class, "fastjson")) // 解码 RPC 响应
+                                    .addLast(new VarysMessageEncoder(VarysRequest.class, "fastjson")) // 编码 RPC 请求
                                     .addLast(varysClientHandler); // 处理 RPC 响应
                         }
                     });

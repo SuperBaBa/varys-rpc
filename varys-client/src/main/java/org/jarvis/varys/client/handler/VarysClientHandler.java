@@ -15,12 +15,13 @@ public class VarysClientHandler extends ChannelDuplexHandler {
 
     private VarysRpcClient varysRpcClient;
 
+    public VarysClientHandler() {
+    }
+
     public VarysClientHandler(VarysRpcClient varysRpcClient) {
         this.varysRpcClient = varysRpcClient;
     }
 
-    public VarysClientHandler() {
-    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -43,7 +44,7 @@ public class VarysClientHandler extends ChannelDuplexHandler {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         VarysResponse varysResponse = (VarysResponse) msg;
-        varysRpcClient.receiver(ctx.channel(),varysResponse);
+        varysRpcClient.receiver(ctx.channel(), varysResponse);
         VarysRpcFuture<VarysResponse> future = VarysHolder.REQUEST_MAP.get(1L);
         future.getPromise().setSuccess(varysResponse);
     }
@@ -51,29 +52,27 @@ public class VarysClientHandler extends ChannelDuplexHandler {
     /*@Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         super.write(ctx, msg, promise);
-        final NettyChannel channel = NettyChannel.getOrAddChannel(ctx.channel(), url, handler);
-        final boolean isRequest = msg instanceof Request;
-
+        final boolean isRequest = msg instanceof VarysRequest;
         // We add listeners to make sure our out bound event is correct.
         // If our out bound event has an error (in most cases the encoder fails),
         // we need to have the request return directly instead of blocking the invoke process.
         promise.addListener(future -> {
             if (future.isSuccess()) {
                 // if our future is success, mark the future to sent.
-                handler.sent(channel, msg);
+                //handler.sent(channel, msg);
                 return;
             }
-
             Throwable t = future.cause();
             if (t != null && isRequest) {
-                Request request = (Request) msg;
-                Response response = buildErrorResponse(request, t);
-                handler.received(channel, response);
+                VarysRequest request = (VarysRequest) msg;
+                VarysResponse response = buildErrorResponse(request, t);
+                VarysRpcFuture<VarysResponse> futureResponse = VarysHolder.REQUEST_MAP.get(1L);
+                futureResponse.getPromise().setSuccess(response);
             }
         });
-    }
+    }*/
 
-    @Override
+    /*@Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         // send heartbeat when read idle.
         if (evt instanceof IdleStateEvent) {
@@ -103,7 +102,7 @@ public class VarysClientHandler extends ChannelDuplexHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("org.jarvis.server caught exception", cause);
+        log.error("server caught exception", cause);
         ctx.close();
     }
 
@@ -117,7 +116,7 @@ public class VarysClientHandler extends ChannelDuplexHandler {
     private static VarysResponse buildErrorResponse(VarysRequest request, Throwable t) {
         VarysResponse response = new VarysResponse(request.getRequestId(), request.getServiceVersion());
         response.setStatus(VarysResponse.BAD_REQUEST);
-        //response.setErrorMessage(StringUtils.toString(t));
+        response.setmErrorMsg(t.getMessage());
         return response;
     }
 

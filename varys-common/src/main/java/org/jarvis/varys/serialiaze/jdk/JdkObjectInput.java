@@ -6,6 +6,12 @@ import org.jarvis.varys.serialiaze.ObjectInput;
 import java.io.*;
 import java.lang.reflect.Type;
 
+/**
+ * jdk序列化输入
+ *
+ * @author cqjia
+ * @date 2021/09/29
+ */
 public class JdkObjectInput implements ObjectInput {
 
     private ObjectInputStream objectInputStream;
@@ -36,12 +42,7 @@ public class JdkObjectInput implements ObjectInput {
     }
 
     @Override
-    public <T> T readObject(Class<T> cls) throws IOException {
-        return null;
-    }
-
-    @Override
-    public <T> T readObject(Class<T> cls, Type type) throws IOException {
+    public <T> T readObjectByByteBuf(Class<T> cls) throws IOException {
         return null;
     }
 
@@ -57,6 +58,16 @@ public class JdkObjectInput implements ObjectInput {
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
+        return null;
+    }
+
+    @Override
+    public <T> T readObject(Class<T> cls) throws IOException {
+        return null;
+    }
+
+    @Override
+    public <T> T readObject(Class<T> cls, Type type) throws IOException {
         return null;
     }
 

@@ -132,9 +132,9 @@ public class VarysRpcServer implements ApplicationContextAware, InitializingBean
                             //获取管道
                             ChannelPipeline pipeline = channel.pipeline()
                                     //字符串解码器
-                                    .addLast(new VarysMessageDecoder(VarysRequest.class))
+                                    .addLast(new VarysMessageDecoder(VarysRequest.class,"fastjson"))
                                     //字符串编码器
-                                    .addLast(new VarysMessageEncoder(VarysResponse.class))
+                                    .addLast(new VarysMessageEncoder(VarysResponse.class,"fastjson"))
                                     //处理类
                                     .addLast(new VarysServerHandler(handlerMap));
                         }

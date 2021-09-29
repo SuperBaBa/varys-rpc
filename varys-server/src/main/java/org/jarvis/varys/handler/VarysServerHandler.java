@@ -61,7 +61,12 @@ public class VarysServerHandler extends ChannelInboundHandlerAdapter {
             response.setException(e);
         }
         // 写入 RPC 响应对象并自动关闭连接
-        ctx.writeAndFlush(response);
+        ctx.write(response);
+    }
+
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        ctx.flush();
     }
 
     private Object handle(VarysRequest request) throws InvocationTargetException {

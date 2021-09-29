@@ -4,9 +4,11 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import org.jarvis.varys.dto.VarysRequest;
+import org.jarvis.varys.serialiaze.Serialization;
 import org.jarvis.varys.serialiaze.fastjson.FastjsonObjectInput;
 import org.jarvis.varys.serialiaze.fastjson.FastjsonSerialization;
 import org.jarvis.varys.serialiaze.jdk.JdkSerialization;
+import org.jarvis.varys.serialiaze.protostuff.ProtostuffSerialization;
 import org.jarvis.varys.util.SerializationUtil;
 
 import java.io.ByteArrayOutputStream;
@@ -22,15 +24,20 @@ import java.io.ObjectOutputStream;
  */
 public class VarysMessageEncoder extends MessageToByteEncoder {
     /**
+     * 序列化类型
+     */
+    private String serializationType = "JDK";
+    /**
      * 泛型类
      */
     private Class<?> genericClass;
 
-    public VarysMessageEncoder() {
-    }
-
     public VarysMessageEncoder(Class<?> genericClass) {
         this.genericClass = genericClass;
+    }
+    public VarysMessageEncoder(Class<?> genericClass,String serializationType) {
+        this.genericClass = genericClass;
+        this.serializationType = serializationType;
     }
 
     /**
@@ -53,9 +60,19 @@ public class VarysMessageEncoder extends MessageToByteEncoder {
      */
     @Override
     public void encode(ChannelHandlerContext ctx, Object in, ByteBuf out) throws IOException {
-        //FastjsonSerialization fastjsonSerialization = new FastjsonSerialization();
-        //fastjsonSerialization.serialize(out).writeObjectByByteBuf(in);
-        JdkSerialization jdkSerialization = new JdkSerialization();
-        jdkSerialization.serialize(out).writeObjectByByteBuf(in);
+        Serialization serialization;
+        switch (serializationType) {
+            case "FASTJSON":
+            case "fastjson":
+                serialization = new FastjsonSerialization();
+                break;
+            case "PROTOSTUFF":
+            case "protostuff":
+                serialization = new ProtostuffSerialization();
+                break;
+            default:
+                serialization = new JdkSerialization();
+        }
+        serialization.serialize(out).writeObjectByByteBuf(in);
     }
 }

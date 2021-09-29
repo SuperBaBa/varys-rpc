@@ -5,10 +5,10 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * 字符串工具类
  *
- * @author huangyong
- * @since 1.0.0
+ * @author cqjia
+ * @date 2021/09/29
  */
-public class StringUtil {
+public final class StringUtil {
 
     /**
      * 判断字符串是否为空

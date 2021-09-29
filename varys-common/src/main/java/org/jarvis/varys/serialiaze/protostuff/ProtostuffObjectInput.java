@@ -19,17 +19,22 @@ public class ProtostuffObjectInput implements ObjectInput {
     }
 
     @Override
+    public <T> T readObjectByByteBuf(Class<T> cls) throws IOException {
+        return null;
+    }
+
+    @Override
+    public <T> T readObjectByByteBuf(Class<T> cls, Type type) throws IOException {
+        return null;
+    }
+
+    @Override
     public <T> T readObject(Class<T> cls) throws IOException {
         return null;
     }
 
     @Override
     public <T> T readObject(Class<T> cls, Type type) throws IOException {
-        return null;
-    }
-
-    @Override
-    public <T> T readObjectByByteBuf(Class<T> cls, Type type) throws IOException {
         return null;
     }
 

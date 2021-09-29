@@ -11,6 +11,8 @@ import org.jarvis.varys.client.AbstractClient;
 import org.jarvis.varys.client.exception.RemotingException;
 import org.jarvis.varys.codec.VarysMessageDecoder;
 import org.jarvis.varys.codec.VarysMessageEncoder;
+import org.jarvis.varys.dto.VarysRequest;
+import org.jarvis.varys.dto.VarysResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,8 +63,8 @@ public class NettyClient extends AbstractClient {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {
                 ch.pipeline()//.addLast("logging",new LoggingHandler(LogLevel.INFO))//for debug
-                        .addLast("decoder", new VarysMessageDecoder())
-                        .addLast("encoder", new VarysMessageEncoder());
+                        .addLast("decoder", new VarysMessageDecoder(VarysRequest.class))
+                        .addLast("encoder", new VarysMessageEncoder(VarysResponse.class));
                         //.addLast("handler", new VarysClientHandler(this));
             }
         });
