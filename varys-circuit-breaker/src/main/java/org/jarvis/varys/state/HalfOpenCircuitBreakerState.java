@@ -2,10 +2,15 @@ package org.jarvis.varys.state;
 
 
 import org.jarvis.varys.circuitbreaker.AbstractCircuitBreaker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class HalfOpenCircuitBreakerState implements CircuitBreakerState {
+
+    private static final Logger log = LoggerFactory.getLogger(HalfOpenCircuitBreakerState.class);
+
     /**
      * 状态初始化时间戳
      */
@@ -31,12 +36,15 @@ public class HalfOpenCircuitBreakerState implements CircuitBreakerState {
         // 判断半开时间是否结束
         long idleTime = Long.parseLong(circuitBreaker.getRetryThresholdAtHalf().split("/")[1]) * 1000L;
         long nowStamp = System.currentTimeMillis();
-        if (stateStartTimestamp + idleTime <= nowStamp) {
+        // 超过半开状态周期时，判断是否回到全开状态，还是切换到关闭状态
+        if (stateStartTimestamp + idleTime < nowStamp) {
             if (failureCount.get() > circuitBreaker.getReopenThresholdCountAtHalf()) {
-                System.out.println("熔断器从 halfState -> openState");
+                log.warn("熔断器从 halfState -> closeState");
+                System.out.println("熔断器从 halfState -> closeState");
                 circuitBreaker.setState(new FullOpenCircuitBreakerState());
             } else {
                 System.out.println("熔断器从 halfState -> closeState");
+                log.warn("熔断器从 halfState -> closeState");
                 circuitBreaker.setState(new CloseCircuitBreakerState());
             }
         }
@@ -48,14 +56,13 @@ public class HalfOpenCircuitBreakerState implements CircuitBreakerState {
         checkAndSwitchState(circuitBreaker);
         // 如果还在一个半开状态的周期内时，判断失败次数是否超过可重试请求次数阈值，超过阈值则不允许请求通过
         int maxPassCount = Integer.parseInt(circuitBreaker.getSwitchOpenThresholdCount().split("/")[0]);
-        if (retryCount.get() < maxPassCount) {
-            return true;
-        }
-        return false;
+        // 如果半开状态没有超过是最大请求，那么可以通过检查，继续试探请求
+        return retryCount.get() < maxPassCount;
     }
 
     @Override
     public void collectFailureCount(AbstractCircuitBreaker circuitBreaker) {
+        // 半开状态也是需要统计失败次数的
         failureCount.incrementAndGet();
         checkAndSwitchState(circuitBreaker);
     }

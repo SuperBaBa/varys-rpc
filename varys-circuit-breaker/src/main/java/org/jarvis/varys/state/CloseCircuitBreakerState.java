@@ -2,6 +2,8 @@ package org.jarvis.varys.state;
 
 
 import org.jarvis.varys.circuitbreaker.AbstractCircuitBreaker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -12,6 +14,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @date 2021/09/27
  */
 public class CloseCircuitBreakerState implements CircuitBreakerState {
+
+    private static final Logger log = LoggerFactory.getLogger(CloseCircuitBreakerState.class);
+
     /**
      * 状态的时间
      */
@@ -33,6 +38,7 @@ public class CloseCircuitBreakerState implements CircuitBreakerState {
         int maxFailureCountAtClose = Integer.parseInt(circuitBreaker.getSwitchOpenThresholdCount().split("/")[0]);
         // 如果失败次数大于阈值则切换到全开状态
         if (failureCount.get() > maxFailureCountAtClose) {
+            log.info("熔断器从 closeState -> openState");
             System.out.println("熔断器从 closeState -> openState");
             circuitBreaker.setState(new FullOpenCircuitBreakerState());
         }
@@ -51,14 +57,14 @@ public class CloseCircuitBreakerState implements CircuitBreakerState {
         long nowTimestamp = System.currentTimeMillis();
         // 若超过一个周期则认为需要重新计算失败次数
         //TODO 若一直是该状态那么一直都是超时的，则失败次数一直是0
-        if (stateStartTime + period <= nowTimestamp) {
+        if (stateStartTime + period < nowTimestamp) {
             failureCount.set(0);
             // 超时后则重新进行一周期的统计
             stateStartTime = nowTimestamp;
         }
         // 失败计数
         failureCount.incrementAndGet();
-        // 检查是否需要切换熔断器状态
+        // 每次统计完失败次数后，检查是否需要切换熔断器状态
         checkAndSwitchState(circuitBreaker);
     }
 }

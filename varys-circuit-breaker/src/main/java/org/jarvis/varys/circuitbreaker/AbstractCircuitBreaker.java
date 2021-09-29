@@ -78,7 +78,6 @@ public abstract class AbstractCircuitBreaker {
     }
 
     public void setState(CircuitBreakerState state) {
-        this.state = state;
         CircuitBreakerState currentState = getState();
         if (currentState.currentStateName().equals(state.currentStateName())){
             return;
@@ -90,7 +89,6 @@ public abstract class AbstractCircuitBreaker {
             if (currentState.currentStateName().equals(state.currentStateName())){
                 return;
             }
-
             // 更新状态
             this.state = state;
             System.out.println("熔断器状态转移：" + currentState.currentStateName() + "->" + state.currentStateName());

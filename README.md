@@ -1,4 +1,4 @@
-![](https://img.shields.io/badge/Java-1.8-green.svg)
+![](https://img.shields.io/badge/Java-11-green.svg)
 [![docker pull](https://img.shields.io/badge/docker-pull-green.svg)](https://hub.docker.com/r/yangzhenkun/krpc/)
 [![Build Status](https://app.travis-ci.com/SuperBaBa/varys-rpc.svg?branch=master)](https://app.travis-ci.com/SuperBaBa/varys-rpc)
 # varys-rpc 瓦里斯远程程序调用
