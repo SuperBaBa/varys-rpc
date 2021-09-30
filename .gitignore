@@ -1,5 +1,9 @@
 .idea/
 .jpb/
+.history/
 target/
+.settings/
+*.classpath
+*.project
 *.log
 *.iml
