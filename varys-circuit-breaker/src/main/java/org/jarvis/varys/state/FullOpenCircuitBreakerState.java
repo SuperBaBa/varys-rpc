@@ -5,8 +5,6 @@ import org.jarvis.varys.circuitbreaker.AbstractCircuitBreaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class FullOpenCircuitBreakerState implements CircuitBreakerState {
 
     private static final Logger log = LoggerFactory.getLogger(FullOpenCircuitBreakerState.class);
@@ -15,13 +13,6 @@ public class FullOpenCircuitBreakerState implements CircuitBreakerState {
      * 进入当前状态的初始化时间
      */
     private final long stateStartTime = System.currentTimeMillis();
-
-
-    /**
-     * 半开状态，失败计数器
-     */
-    private final AtomicInteger failNum = new AtomicInteger(0);
-
 
     @Override
     public String currentStateName() {
@@ -36,8 +27,7 @@ public class FullOpenCircuitBreakerState implements CircuitBreakerState {
         // 如果熔断器全开状态持续时间超过设定时长，则切换到半开状态进行少量流量的验证
         if (stateStartTime + openStateKeepTime < nowTimestamp) {
             log.info("超过熔断器全开状态时间从 openState -> halfState");
-            System.out.println("超过熔断器全开状态时间从 openState -> halfState");
-            circuitBreaker.setState(new HalfOpenCircuitBreakerState());
+            circuitBreaker.getStateAtomicReference().compareAndSet(State.FULL,State.HALF);
         }
     }
 
@@ -52,7 +42,6 @@ public class FullOpenCircuitBreakerState implements CircuitBreakerState {
     @Override
     public void collectFailureCount(AbstractCircuitBreaker circuitBreaker) {
         //do nothing
-        /*failNum.incrementAndGet();
-        checkAndSwitchState(circuitBreaker);*/
+        log.warn("存在两个线程同时进行失败统计");
     }
 }

@@ -39,8 +39,7 @@ public class CloseCircuitBreakerState implements CircuitBreakerState {
         // 如果失败次数大于阈值则切换到全开状态
         if (failureCount.get() > maxFailureCountAtClose) {
             log.info("熔断器从 closeState -> openState");
-            System.out.println("熔断器从 closeState -> openState");
-            circuitBreaker.setState(new FullOpenCircuitBreakerState());
+            circuitBreaker.getStateAtomicReference().compareAndSet(State.CLOSE,State.FULL);
         }
     }
 
@@ -52,6 +51,7 @@ public class CloseCircuitBreakerState implements CircuitBreakerState {
 
     @Override
     public void collectFailureCount(AbstractCircuitBreaker circuitBreaker) {
+        checkAndSwitchState(circuitBreaker);
         // 获取切换阈值的时间段条件，如在600秒内失败10次，则是 10/600
         long period = Long.parseLong(circuitBreaker.getSwitchOpenThresholdCount().split("/")[1]) * 1000;
         long nowTimestamp = System.currentTimeMillis();

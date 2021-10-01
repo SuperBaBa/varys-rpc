@@ -1,39 +1,36 @@
 package org.jarvis.varys.circuitbreaker;
 
 
-import org.jarvis.varys.state.CloseCircuitBreakerState;
+import org.jarvis.varys.state.CircuitBreakerState;
+import org.jarvis.varys.state.State;
+
 
 public class LocalCircuitBreaker extends AbstractCircuitBreaker implements CircuitBreaker {
-    private LocalCircuitBreaker() {
-        super();
-    }
 
-    private LocalCircuitBreaker(String failRateForClose, int idleTimeForOpen, String passRateForHalfOpen, int failNumForHalfOpen) {
-        setSwitchHalfThresholdTimeAtOpen(idleTimeForOpen);
-        setReopenThresholdCountAtHalf(failNumForHalfOpen);
-        setRetryThresholdAtHalf(passRateForHalfOpen);
-        setSwitchOpenThresholdCount(failRateForClose);
-    }
+    final byte[] b = new byte[0];
 
     LocalCircuitBreaker INSTANCE;
 
     @Override
     public void reset() {
-        this.setState(new CloseCircuitBreakerState());
+        getStateAtomicReference().set(State.CLOSE);
     }
 
     @Override
     public boolean isPassCheck() {
-        return getState().isPassCheck(this);
+        return getStateAtomicReference().get().getCircuitBreakerState().isPassCheck(this);
     }
 
     @Override
     public void countFailNum() {
-        getState().collectFailureCount(this);
+        synchronized (b) {
+            CircuitBreakerState state = getStateAtomicReference().get().getCircuitBreakerState();
+            state.collectFailureCount(this);
+        }
     }
 
     private static class LocalCircuitBreakerSingle {
-        private static LocalCircuitBreaker staticInnerClass = new LocalCircuitBreaker();
+        private static final LocalCircuitBreaker staticInnerClass = new LocalCircuitBreaker();
     }
 
     public static LocalCircuitBreaker getInstance() {

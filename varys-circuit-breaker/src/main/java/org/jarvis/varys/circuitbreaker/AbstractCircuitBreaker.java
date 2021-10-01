@@ -2,13 +2,15 @@ package org.jarvis.varys.circuitbreaker;
 
 import org.jarvis.varys.state.CircuitBreakerState;
 import org.jarvis.varys.state.CloseCircuitBreakerState;
+import org.jarvis.varys.state.State;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class AbstractCircuitBreaker {
-
     /**
      * 熔断器当前状态，默认状态时关闭状态
      */
-    private volatile CircuitBreakerState state = new CloseCircuitBreakerState();
+    private final AtomicReference<State> stateAtomicReference = new AtomicReference<>(State.CLOSE);
 
     /**
      * 在熔断器关闭的情况下，在多少秒内失败多少次进入，熔断打开状态（默认10分钟内，失败10次进入打开状态）
@@ -33,17 +35,10 @@ public abstract class AbstractCircuitBreaker {
     public AbstractCircuitBreaker() {
     }
 
-    public AbstractCircuitBreaker(CircuitBreakerState state, String switchOpenThresholdCount, int switchHalfThresholdTimeAtOpen, String tryThresholdAtHalf, int reopenThresholdCountAtHalf) {
-        this.state = state;
-        this.switchOpenThresholdCount = switchOpenThresholdCount;
-        this.switchHalfThresholdTimeAtOpen = switchHalfThresholdTimeAtOpen;
-        this.retryThresholdAtHalf = tryThresholdAtHalf;
-        this.reopenThresholdCountAtHalf = reopenThresholdCountAtHalf;
+    public AtomicReference<State> getStateAtomicReference() {
+        return stateAtomicReference;
     }
 
-    public CircuitBreakerState getState() {
-        return state;
-    }
 
     public String getSwitchOpenThresholdCount() {
         return switchOpenThresholdCount;
@@ -77,21 +72,4 @@ public abstract class AbstractCircuitBreaker {
         this.reopenThresholdCountAtHalf = reopenThresholdCountAtHalf;
     }
 
-    public void setState(CircuitBreakerState state) {
-        CircuitBreakerState currentState = getState();
-        if (currentState.currentStateName().equals(state.currentStateName())){
-            return;
-        }
-        // 对象锁二次校验
-        synchronized (this){
-            // 二次判断
-            currentState = getState();
-            if (currentState.currentStateName().equals(state.currentStateName())){
-                return;
-            }
-            // 更新状态
-            this.state = state;
-            System.out.println("熔断器状态转移：" + currentState.currentStateName() + "->" + state.currentStateName());
-        }
-    }
 }

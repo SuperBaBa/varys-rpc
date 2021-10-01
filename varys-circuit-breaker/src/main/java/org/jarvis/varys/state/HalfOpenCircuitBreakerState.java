@@ -39,15 +39,16 @@ public class HalfOpenCircuitBreakerState implements CircuitBreakerState {
         // 超过半开状态周期时，判断是否回到全开状态，还是切换到关闭状态
         if (stateStartTimestamp + idleTime < nowStamp) {
             if (failureCount.get() > circuitBreaker.getReopenThresholdCountAtHalf()) {
-                log.warn("熔断器从 halfState -> closeState");
-                System.out.println("熔断器从 halfState -> closeState");
-                circuitBreaker.setState(new FullOpenCircuitBreakerState());
+                log.warn("熔断器从 halfState -> fullState");
+                circuitBreaker.getStateAtomicReference().compareAndSet(State.HALF,State.FULL);
             } else {
-                System.out.println("熔断器从 halfState -> closeState");
                 log.warn("熔断器从 halfState -> closeState");
-                circuitBreaker.setState(new CloseCircuitBreakerState());
+                circuitBreaker.getStateAtomicReference().compareAndSet(State.HALF,State.CLOSE);
+
             }
+            retryCount.set(0);
         }
+        retryCount.incrementAndGet();
     }
 
     @Override
